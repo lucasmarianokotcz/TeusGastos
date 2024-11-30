@@ -1,5 +1,5 @@
 using MudBlazor.Services;
-using TeusGastos.Client.Pages;
+using Scalar.AspNetCore;
 using TeusGastos.Components;
 using TeusGastos.Shared.Contexto;
 using TeusGastos.Shared.Servicos.UnidadeMedidaServico;
@@ -16,12 +16,16 @@ builder.Services.AddMudServices();
 builder.Services.AddControllers();
 builder.Services.AddScoped<IUnidadeMedidaServico, UnidadeMedidaServicoRepositorio>();
 
+builder.Services.AddOpenApi();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
+    app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 else
 {

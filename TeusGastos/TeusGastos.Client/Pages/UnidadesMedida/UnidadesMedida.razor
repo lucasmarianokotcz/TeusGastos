@@ -1,0 +1,110 @@
+@page "/unidades-de-medida"
+@using TeusGastos.Shared.Entidades
+@using TeusGastos.Shared.Servicos.UnidadeMedidaServico
+@inject IUnidadeMedidaServico UnidadeMedidaServico
+@inject NavigationManager Navigation
+
+<CustomPageTitle Title="Unidades de Medida"></CustomPageTitle>
+
+<MudTable @ref="table"
+          Hover="true"
+          Breakpoint="Breakpoint.Sm"
+          ServerData="LoadServerData"
+          Loading="@_loading"
+          LoadingProgressColor="Color.Info"
+          CurrentPage="@pagina"
+          RowsPerPage="@linhasPorPagina">
+    <ToolBarContent>
+        <MudText Typo="Typo.h5">Unidades de Medida</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s=>Pesquisar(s))" Placeholder="Pesquisar" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>
+            <MudTableSortLabel SortLabel="Id" T="UnidadeMedida">Id</MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel InitialDirection="SortDirection.Ascending" SortLabel="Nome" T="UnidadeMedida">Nome
+            </MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel SortLabel="Sigla" T="UnidadeMedida">Sigla</MudTableSortLabel>
+        </MudTh>
+        <MudTh>Ações</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Nome">@context.Nome</MudTd>
+        <MudTd DataLabel="Sigla">@context.Sigla</MudTd>
+        <MudTd>
+            <MudButton Color="Color.Secondary" OnClick="() => Editar(context.Id)">Editar</MudButton>
+            <MudButton Color="Color.Secondary" OnClick="() => Excluir(context.Id, new CancellationToken(false))">Excluir</MudButton>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new[] { 3, 5, 10, 25, 50, 100 }"
+                       RowsPerPageString="@RowsPerPageString"
+                       InfoFormat="@InfoFormat"
+                       AllItemsText="@AllItemsText"/>
+    </PagerContent>
+</MudTable>
+
+@code {
+    private bool _loading;
+    private const string RowsPerPageString = "Linhas por página";
+    private const string InfoFormat = "{first_item}-{last_item} de {all_items}";
+    private const string AllItemsText = "Todos";
+    private MudTable<UnidadeMedida>? table;
+    private int pagina;
+    private int linhasPorPagina = 10;
+    private string busca = string.Empty;
+
+    // Método que será chamado pelo MudTable para carregar os dados do servidor.
+    private async Task<TableData<UnidadeMedida>> LoadServerData(TableState state, CancellationToken token)
+    {
+        _loading = true; // Ativa o loading enquanto os dados estão sendo carregados.
+        
+        // Aqui você pode adicionar lógica para filtragem, ordenação e paginação.
+        var resultado = await UnidadeMedidaServico.ObterComPaginacao(
+            busca,
+            state.Page, // Página atual
+            state.PageSize, // Tamanho da página
+            state.SortLabel, // Ordenação (se houver)
+            state.SortDirection == SortDirection.Ascending, // Direção da ordenação,
+            token
+        );
+
+        _loading = false; // Desativa o loading quando os dados são carregados.
+
+        pagina = state.Page;
+        linhasPorPagina = state.PageSize;
+        
+        return new TableData<UnidadeMedida>
+        {
+            Items = resultado.Itens, // Lista de unidades de medida
+            TotalItems = resultado.Total // Contagem total de itens (para paginação)
+        };
+    }
+    
+    private void Pesquisar(string text)
+    {
+        busca = text;
+        table!.ReloadServerData();
+    }
+
+    private void Editar(int id)
+    {
+        Navigation.NavigateTo($"/unidades-medida/editar/{id}");
+    }
+
+    private async Task Excluir(int id, CancellationToken cancellationToken)
+    {
+        await UnidadeMedidaServico.Excluir(id, cancellationToken);
+        
+        pagina = table!.CurrentPage;
+        linhasPorPagina = table!.RowsPerPage;
+        
+        await table!.ReloadServerData();
+    }
+}

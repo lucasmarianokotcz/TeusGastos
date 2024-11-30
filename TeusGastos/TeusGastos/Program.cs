@@ -1,6 +1,8 @@
 using MudBlazor.Services;
 using TeusGastos.Client.Pages;
 using TeusGastos.Components;
+using TeusGastos.Shared.Contexto;
+using TeusGastos.Shared.Servicos.UnidadeMedidaServico;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
+builder.Services.AddDbContext<AppDbContext>();
+
 builder.Services.AddMudServices();
+builder.Services.AddControllers();
+builder.Services.AddScoped<IUnidadeMedidaServico, UnidadeMedidaServicoRepositorio>();
 
 var app = builder.Build();
 
@@ -26,6 +32,7 @@ else
 
 app.UseHttpsRedirection();
 
+app.MapControllers();
 
 app.UseAntiforgery();
 

@@ -7,7 +7,7 @@ public class ItemNotaCompra
     public int ProdutoId { get; set; }
     public decimal Quantidade { get; set; }
     public decimal ValorUnitario { get; set; }
-    public decimal Desconto { get; set; }
+    public decimal? Desconto { get; set; }
     
     // Propriedade calculada
     public decimal ValorTotal { get; set; }

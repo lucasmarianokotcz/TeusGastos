@@ -12,7 +12,7 @@ using TeusGastos.Shared.Contexto;
 namespace TeusGastos.Shared.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241124000319_Inicial")]
+    [Migration("20241221082545_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
@@ -33,8 +33,8 @@ namespace TeusGastos.Shared.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("Desconto")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<decimal?>("Desconto")
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<int>("NotaId")
                         .HasColumnType("int");
@@ -43,7 +43,7 @@ namespace TeusGastos.Shared.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Quantidade")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<decimal>("ValorTotal")
                         .ValueGeneratedOnAddOrUpdate()
@@ -51,7 +51,7 @@ namespace TeusGastos.Shared.Migrations
                         .HasComputedColumnSql("[Quantidade] * ([ValorUnitario] - [Desconto])");
 
                     b.Property<decimal>("ValorUnitario")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.HasKey("Id");
 
@@ -59,7 +59,7 @@ namespace TeusGastos.Shared.Migrations
 
                     b.HasIndex("ProdutoId");
 
-                    b.ToTable("ItensNotaCompra");
+                    b.ToTable("ItemNotaCompra", (string)null);
                 });
 
             modelBuilder.Entity("TeusGastos.Shared.Entidades.Mercado", b =>
@@ -71,15 +71,15 @@ namespace TeusGastos.Shared.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Endereco")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varchar(1000)");
 
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varchar(250)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Mercados");
+                    b.ToTable("Mercado", (string)null);
                 });
 
             modelBuilder.Entity("TeusGastos.Shared.Entidades.NotaCompra", b =>
@@ -91,19 +91,19 @@ namespace TeusGastos.Shared.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DataCompra")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.Property<int>("MercadoId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("Total")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("MercadoId");
 
-                    b.ToTable("NotasCompra");
+                    b.ToTable("NotaCompra", (string)null);
                 });
 
             modelBuilder.Entity("TeusGastos.Shared.Entidades.Produto", b =>
@@ -114,13 +114,13 @@ namespace TeusGastos.Shared.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Codigo")
+                    b.Property<string>("CodigoEAN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("char(13)");
 
                     b.Property<string>("Descricao")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<int>("UnidadeId")
                         .HasColumnType("int");
@@ -129,7 +129,7 @@ namespace TeusGastos.Shared.Migrations
 
                     b.HasIndex("UnidadeId");
 
-                    b.ToTable("Produtos");
+                    b.ToTable("Produto", (string)null);
                 });
 
             modelBuilder.Entity("TeusGastos.Shared.Entidades.UnidadeMedida", b =>
@@ -142,15 +142,15 @@ namespace TeusGastos.Shared.Migrations
 
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("Sigla")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varchar(20)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("UnidadesMedida");
+                    b.ToTable("UnidadeMedida", (string)null);
                 });
 
             modelBuilder.Entity("TeusGastos.Shared.Entidades.ItemNotaCompra", b =>

@@ -3,7 +3,7 @@ namespace TeusGastos.Shared.Entidades;
 public class Produto
 {
     public int Id { get; set; }
-    public string Codigo { get; set; } = string.Empty;
+    public string CodigoEAN { get; set; } = string.Empty;
     public string Descricao { get; set; } = string.Empty;
     public int UnidadeId { get; set; }
 

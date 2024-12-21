@@ -12,77 +12,77 @@ namespace TeusGastos.Shared.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Mercados",
+                name: "Mercado",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Endereco = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Nome = table.Column<string>(type: "varchar(250)", nullable: false),
+                    Endereco = table.Column<string>(type: "varchar(1000)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Mercados", x => x.Id);
+                    table.PrimaryKey("PK_Mercado", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "UnidadesMedida",
+                name: "UnidadeMedida",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Sigla = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Nome = table.Column<string>(type: "varchar(100)", nullable: false),
+                    Sigla = table.Column<string>(type: "varchar(20)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UnidadesMedida", x => x.Id);
+                    table.PrimaryKey("PK_UnidadeMedida", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "NotasCompra",
+                name: "NotaCompra",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MercadoId = table.Column<int>(type: "int", nullable: false),
-                    DataCompra = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DataCompra = table.Column<DateTime>(type: "date", nullable: false),
                     Total = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_NotasCompra", x => x.Id);
+                    table.PrimaryKey("PK_NotaCompra", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_NotasCompra_Mercados_MercadoId",
+                        name: "FK_NotaCompra_Mercado_MercadoId",
                         column: x => x.MercadoId,
-                        principalTable: "Mercados",
+                        principalTable: "Mercado",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Produtos",
+                name: "Produto",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Codigo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Descricao = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CodigoEAN = table.Column<string>(type: "char(13)", nullable: false),
+                    Descricao = table.Column<string>(type: "varchar(255)", nullable: false),
                     UnidadeId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Produtos", x => x.Id);
+                    table.PrimaryKey("PK_Produto", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Produtos_UnidadesMedida_UnidadeId",
+                        name: "FK_Produto_UnidadeMedida_UnidadeId",
                         column: x => x.UnidadeId,
-                        principalTable: "UnidadesMedida",
+                        principalTable: "UnidadeMedida",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "ItensNotaCompra",
+                name: "ItemNotaCompra",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -91,44 +91,44 @@ namespace TeusGastos.Shared.Migrations
                     ProdutoId = table.Column<int>(type: "int", nullable: false),
                     Quantidade = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ValorUnitario = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Desconto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Desconto = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     ValorTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false, computedColumnSql: "[Quantidade] * ([ValorUnitario] - [Desconto])")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ItensNotaCompra", x => x.Id);
+                    table.PrimaryKey("PK_ItemNotaCompra", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ItensNotaCompra_NotasCompra_NotaId",
+                        name: "FK_ItemNotaCompra_NotaCompra_NotaId",
                         column: x => x.NotaId,
-                        principalTable: "NotasCompra",
+                        principalTable: "NotaCompra",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ItensNotaCompra_Produtos_ProdutoId",
+                        name: "FK_ItemNotaCompra_Produto_ProdutoId",
                         column: x => x.ProdutoId,
-                        principalTable: "Produtos",
+                        principalTable: "Produto",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ItensNotaCompra_NotaId",
-                table: "ItensNotaCompra",
+                name: "IX_ItemNotaCompra_NotaId",
+                table: "ItemNotaCompra",
                 column: "NotaId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ItensNotaCompra_ProdutoId",
-                table: "ItensNotaCompra",
+                name: "IX_ItemNotaCompra_ProdutoId",
+                table: "ItemNotaCompra",
                 column: "ProdutoId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_NotasCompra_MercadoId",
-                table: "NotasCompra",
+                name: "IX_NotaCompra_MercadoId",
+                table: "NotaCompra",
                 column: "MercadoId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Produtos_UnidadeId",
-                table: "Produtos",
+                name: "IX_Produto_UnidadeId",
+                table: "Produto",
                 column: "UnidadeId");
         }
 
@@ -136,19 +136,19 @@ namespace TeusGastos.Shared.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ItensNotaCompra");
+                name: "ItemNotaCompra");
 
             migrationBuilder.DropTable(
-                name: "NotasCompra");
+                name: "NotaCompra");
 
             migrationBuilder.DropTable(
-                name: "Produtos");
+                name: "Produto");
 
             migrationBuilder.DropTable(
-                name: "Mercados");
+                name: "Mercado");
 
             migrationBuilder.DropTable(
-                name: "UnidadesMedida");
+                name: "UnidadeMedida");
         }
     }
 }

@@ -13,11 +13,11 @@ public class UnidadeMedidaMapeamento : IEntityTypeConfiguration<UnidadeMedida>
         builder.HasKey(u => u.Id);
         
         builder.Property(u => u.Nome)
-            .HasColumnType("varchar(100)")
+            .HasColumnType($"varchar({UnidadeMedida.NomeMaxLength})")
             .IsRequired();
         
         builder.Property(u => u.Sigla)
-            .HasColumnType("varchar(20)")
+            .HasColumnType($"varchar({UnidadeMedida.SiglaMaxLength})")
             .IsRequired();
         
         builder.HasMany(u => u.Produtos)

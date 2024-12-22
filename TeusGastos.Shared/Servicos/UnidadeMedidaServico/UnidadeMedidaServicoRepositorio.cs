@@ -59,9 +59,9 @@ public class UnidadeMedidaServicoRepositorio(AppDbContext context) : IUnidadeMed
         };
     }
 
-    public async Task<UnidadeMedida?> ObterPorId(int id)
+    public async Task<UnidadeMedida?> ObterPorId(int id, CancellationToken cancellationToken)
     {
-        return await context.UnidadesMedida.FindAsync(id);
+        return await context.UnidadesMedida.FindAsync(id, cancellationToken);
     }
 
     public async Task InserirOuAlterar(UnidadeMedida unidade, CancellationToken cancellationToken)
@@ -76,7 +76,7 @@ public class UnidadeMedidaServicoRepositorio(AppDbContext context) : IUnidadeMed
 
     public async Task Excluir(int id, CancellationToken cancellationToken)
     {
-        var unidade = await ObterPorId(id);
+        var unidade = await ObterPorId(id, cancellationToken);
         if (unidade is not null)
         {
             context.UnidadesMedida.Remove(unidade);

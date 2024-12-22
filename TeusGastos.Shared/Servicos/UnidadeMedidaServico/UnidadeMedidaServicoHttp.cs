@@ -16,13 +16,15 @@ public class UnidadeMedidaServicoHttp(HttpClient httpClient) : IUnidadeMedidaSer
         string? busca, int pagina, int tamanhoPagina, string? ordenarPor, bool ordemCrescente, CancellationToken cancellationToken)
     {
         return await httpClient.GetFromJsonAsync<ItensPaginados<UnidadeMedida>>(
-            $"{RelativeUri}/com-paginacao?busca={busca}&pagina={pagina}&tamanhoPagina={tamanhoPagina}&ordenarPor={ordenarPor}&ordemCrescente={ordemCrescente}&cancellationToken={cancellationToken}") ??
+            $"{RelativeUri}/com-paginacao?busca={busca}&pagina={pagina}&tamanhoPagina={tamanhoPagina}&ordenarPor={ordenarPor}&ordemCrescente={ordemCrescente}&cancellationToken={cancellationToken}",
+            cancellationToken) ??
                new ItensPaginados<UnidadeMedida>();
     }
 
-    public async Task<UnidadeMedida?> ObterPorId(int id)
+    public async Task<UnidadeMedida?> ObterPorId(int id, CancellationToken cancellationToken)
     {
-        return await httpClient.GetFromJsonAsync<UnidadeMedida?>($"{RelativeUri}/{id}");
+        return await httpClient.GetFromJsonAsync<UnidadeMedida?>($"{RelativeUri}/{id}&cancellationToken={cancellationToken}",
+            cancellationToken);
     }
 
     public async Task InserirOuAlterar(UnidadeMedida unidade, CancellationToken cancellationToken)

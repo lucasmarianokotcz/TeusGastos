@@ -22,10 +22,10 @@ public class UnidadesMedidaController(IUnidadeMedidaServico servico) : Controlle
         return Ok(await servico.ObterComPaginacao(busca, pagina, tamanhoPagina, ordenarPor, ordemCrescente, cancellationToken));
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<UnidadeMedida>> ObterPorId(int id)
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<UnidadeMedida>> ObterPorId(int id, CancellationToken cancellationToken)
     {
-        var unidade = await servico.ObterPorId(id);
+        var unidade = await servico.ObterPorId(id, cancellationToken);
         if (unidade == null) return NotFound();
         return Ok(unidade);
     }

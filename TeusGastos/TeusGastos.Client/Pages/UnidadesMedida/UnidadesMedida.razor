@@ -3,8 +3,18 @@
 @using TeusGastos.Shared.Servicos.UnidadeMedidaServico
 @inject IUnidadeMedidaServico UnidadeMedidaServico
 @inject NavigationManager Navigation
+@inject IDialogService DialogService
 
 <CustomPageTitle Title="Unidades de Medida"></CustomPageTitle>
+
+<MudButton Variant="Variant.Filled"
+           Color="Color.Info"
+           DropShadow="false"
+           Class="mb-3"
+           StartIcon="@Icons.Material.Filled.Add"
+           IconSize="Size.Large"
+           @onclick="() => OpenDialogAsync(0)">Adicionar
+</MudButton>
 
 <MudTable @ref="table"
           Hover="true"
@@ -106,5 +116,23 @@
         linhasPorPagina = table!.RowsPerPage;
         
         await table!.ReloadServerData();
+    }
+    
+    private async Task OpenDialogAsync(int id)
+    {
+        var options = new DialogOptions
+        {
+            FullWidth = true,
+            MaxWidth = MaxWidth.ExtraSmall,
+            CloseOnEscapeKey = false,
+            BackdropClick = false
+        };
+
+        var dialog = await DialogService.ShowAsync<Dialog>(id > 0 ? "Editar Unidade de Medida" : "Adicionar Unidade de Medida", options);
+        var result = await dialog.Result;
+        if (!result?.Canceled ?? true)
+        {
+            await table!.ReloadServerData();
+        }
     }
 }

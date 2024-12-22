@@ -1,0 +1,92 @@
+@using TeusGastos.Client.ViewModels
+@using TeusGastos.Shared.Entidades
+@using TeusGastos.Shared.Extensions
+@using TeusGastos.Shared.Servicos.UnidadeMedidaServico
+@inject IUnidadeMedidaServico UnidadeMedidaServico
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@MudDialog.Title</MudText>
+    </TitleContent>
+    <DialogContent>
+        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator/>
+            <MudTextField Label="Nome*"
+                          For="@(() => model.Nome)"
+                          OnlyValidateIfDirty="true"
+                          T="string"
+                          Value="model.Nome"
+                          ValueChanged="(value) => model.Nome = value.FirstCharToUpper()"
+                          Immediate="true" />
+            <MudTextField Label="Sigla*"
+                          For="@(() => model.Sigla)"
+                          OnlyValidateIfDirty="true"
+                          T="string"
+                          Value="model.Sigla"
+                          ValueChanged="(value) => model.Sigla = value.ToUpper()"
+                          Immediate="true" />
+            <MudCardActions Class="mt-8 px-0">
+                <MudButton Color="Color.Error"
+                           DropShadow="false"
+                           Variant="Variant.Filled"
+                           StartIcon="@Icons.Material.Filled.Cancel"
+                           IconSize="Size.Small"
+                           OnClick="Cancel">Cancelar
+                </MudButton>
+                <MudButton Color="Color.Success"
+                           DropShadow="false"
+                           Variant="Variant.Filled"
+                           StartIcon="@Icons.Material.Filled.CheckCircle"
+                           IconSize="Size.Small"
+                           ButtonType="ButtonType.Submit"
+                           Class="ml-auto">Salvar
+                </MudButton>
+            </MudCardActions>
+        </EditForm>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    UnidadeMedidaViewModel model = new();
+
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = null!;
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        var obj = new UnidadeMedida()
+        {
+            Id = model.Id,
+            Nome = model.Nome,
+            Sigla = model.Sigla
+        };
+
+        try
+        {
+            await UnidadeMedidaServico.InserirOuAlterar(obj, new CancellationToken(false));
+            Snackbar.Add("Unidade de Medida adicionada com sucesso!", Severity.Success,
+                options =>
+                {
+                    options.VisibleStateDuration = 2000;
+                    options.ShowTransitionDuration = 300;
+                    options.HideTransitionDuration = 1000;
+                });
+            MudDialog.Close();
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add
+            (
+                @<div>
+                    <h3>Erro ao salvar Unidade de Medida</h3>
+                    <strong>Detalhes:</strong>
+                    <text>@e.Message</text>
+                </div>
+            , Severity.Error);
+        }
+        
+        StateHasChanged();
+    }
+}

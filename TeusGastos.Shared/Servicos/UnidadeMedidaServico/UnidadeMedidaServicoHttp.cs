@@ -23,7 +23,7 @@ public class UnidadeMedidaServicoHttp(HttpClient httpClient) : IUnidadeMedidaSer
 
     public async Task<UnidadeMedida?> ObterPorId(int id, CancellationToken cancellationToken)
     {
-        return await httpClient.GetFromJsonAsync<UnidadeMedida?>($"{RelativeUri}/{id}&cancellationToken={cancellationToken}",
+        return await httpClient.GetFromJsonAsync<UnidadeMedida?>($"{RelativeUri}/{id}?cancellationToken={cancellationToken}",
             cancellationToken);
     }
 

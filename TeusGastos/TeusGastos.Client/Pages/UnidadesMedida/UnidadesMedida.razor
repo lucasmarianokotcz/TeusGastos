@@ -1,8 +1,8 @@
 @page "/unidades-de-medida"
+@using TeusGastos.Client.ViewModels
 @using TeusGastos.Shared.Entidades
 @using TeusGastos.Shared.Servicos.UnidadeMedidaServico
 @inject IUnidadeMedidaServico UnidadeMedidaServico
-@inject NavigationManager Navigation
 @inject IDialogService DialogService
 
 <CustomPageTitle Title="Unidades de Medida"></CustomPageTitle>
@@ -26,8 +26,8 @@
           RowsPerPage="@linhasPorPagina">
     <ToolBarContent>
         <MudText Typo="Typo.h5">Unidades de Medida</MudText>
-        <MudSpacer />
-        <MudTextField T="string" ValueChanged="@(s=>Pesquisar(s))" Placeholder="Pesquisar" Adornment="Adornment.Start"
+        <MudSpacer/>
+        <MudTextField T="string" ValueChanged="@(s => Pesquisar(s))" Placeholder="Pesquisar" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
@@ -48,8 +48,17 @@
         <MudTd DataLabel="Nome">@context.Nome</MudTd>
         <MudTd DataLabel="Sigla">@context.Sigla</MudTd>
         <MudTd>
-            <MudButton Color="Color.Secondary" OnClick="() => Editar(context.Id)">Editar</MudButton>
-            <MudButton Color="Color.Secondary" OnClick="() => Excluir(context.Id, new CancellationToken(false))">Excluir</MudButton>
+            <MudButton Color="Color.Warning" Variant="Variant.Filled" Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.Edit" IconSize="Size.Small"
+                       DropShadow="false"
+                       OnClick="async () => await OpenDialogAsync(context.Id)">Editar
+            </MudButton>
+            &ensp;
+            <MudButton Color="Color.Error" Variant="Variant.Filled" Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.Delete" IconSize="Size.Small"
+                       DropShadow="false"
+                       OnClick="() => Excluir(context.Id)">Excluir
+            </MudButton>
         </MudTd>
     </RowTemplate>
     <PagerContent>
@@ -74,7 +83,7 @@
     private async Task<TableData<UnidadeMedida>> LoadServerData(TableState state, CancellationToken token)
     {
         _loading = true; // Ativa o loading enquanto os dados estão sendo carregados.
-        
+
         // Aqui você pode adicionar lógica para filtragem, ordenação e paginação.
         var resultado = await UnidadeMedidaServico.ObterComPaginacao(
             busca,
@@ -89,35 +98,25 @@
 
         pagina = state.Page;
         linhasPorPagina = state.PageSize;
-        
+
         return new TableData<UnidadeMedida>
         {
             Items = resultado.Itens, // Lista de unidades de medida
             TotalItems = resultado.Total // Contagem total de itens (para paginação)
         };
     }
-    
+
     private void Pesquisar(string text)
     {
         busca = text;
         table!.ReloadServerData();
     }
 
-    private void Editar(int id)
+    private async Task Excluir(int id)
     {
-        Navigation.NavigateTo($"/unidades-medida/editar/{id}");
+        await OpenDialogExclusao(id);
     }
 
-    private async Task Excluir(int id, CancellationToken cancellationToken)
-    {
-        await UnidadeMedidaServico.Excluir(id, cancellationToken);
-        
-        pagina = table!.CurrentPage;
-        linhasPorPagina = table!.RowsPerPage;
-        
-        await table!.ReloadServerData();
-    }
-    
     private async Task OpenDialogAsync(int id)
     {
         var options = new DialogOptions
@@ -128,10 +127,46 @@
             BackdropClick = false
         };
 
-        var dialog = await DialogService.ShowAsync<Dialog>(id > 0 ? "Editar Unidade de Medida" : "Adicionar Unidade de Medida", options);
+        var parameters = new DialogParameters<Dialog>();
+        if (id > 0)
+        {
+            var model = await UnidadeMedidaServico.ObterPorId(id, CancellationToken.None);
+            parameters.Add(x => x.Model, new UnidadeMedidaViewModel()
+            {
+                Id = model!.Id,
+                Nome = model.Nome,
+                Sigla = model.Sigla
+            });
+        }
+        
+        var dialog = await DialogService.ShowAsync<Dialog>(id > 0 ? "Editar Unidade de Medida" : "Adicionar Unidade de Medida",
+            parameters,
+            options);
         var result = await dialog.Result;
         if (!result?.Canceled ?? true)
         {
+            await table!.ReloadServerData();
+        }
+    }
+
+    private async Task OpenDialogExclusao(int id)
+    {
+        var options = new DialogOptions
+        {
+            FullWidth = true,
+            MaxWidth = MaxWidth.ExtraSmall,
+            CloseOnEscapeKey = false,
+            BackdropClick = false
+        };
+
+        var parameters = new DialogParameters<DialogConfirmacaoExclusao> { { x => x.Id, id } };
+
+        var dialog = await DialogService.ShowAsync<DialogConfirmacaoExclusao>(null, parameters, options);
+        var result = await dialog.Result;
+        if (!result?.Canceled ?? true)
+        {
+            pagina = table!.CurrentPage;
+            linhasPorPagina = table!.RowsPerPage;
             await table!.ReloadServerData();
         }
     }

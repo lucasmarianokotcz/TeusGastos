@@ -10,24 +10,24 @@
         <MudText Typo="Typo.h6">@MudDialog.Title</MudText>
     </TitleContent>
     <DialogContent>
-        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+        <EditForm Model="@Model" OnValidSubmit="OnValidSubmit">
             <DataAnnotationsValidator/>
             <MudTextField Label="Nome*"
-                          For="@(() => model.Nome)"
+                          For="@(() => Model.Nome)"
                           OnlyValidateIfDirty="true"
                           T="string"
-                          Value="model.Nome"
-                          ValueChanged="(value) => model.Nome = value.FirstCharToUpper()"
+                          Value="Model.Nome"
+                          ValueChanged="(value) => Model.Nome = value.FirstCharToUpper()"
                           Immediate="true" />
             <MudTextField Label="Sigla*"
-                          For="@(() => model.Sigla)"
+                          For="@(() => Model.Sigla)"
                           OnlyValidateIfDirty="true"
                           T="string"
-                          Value="model.Sigla"
-                          ValueChanged="(value) => model.Sigla = value.ToUpper()"
+                          Value="Model.Sigla"
+                          ValueChanged="(value) => Model.Sigla = value.ToUpper()"
                           Immediate="true" />
             <MudCardActions Class="mt-8 px-0">
-                <MudButton Color="Color.Error"
+                <MudButton Color="Color.Transparent"
                            DropShadow="false"
                            Variant="Variant.Filled"
                            StartIcon="@Icons.Material.Filled.Cancel"
@@ -48,7 +48,7 @@
 </MudDialog>
 
 @code {
-    UnidadeMedidaViewModel model = new();
+    [Parameter] public UnidadeMedidaViewModel Model { get; set; } = new();
 
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = null!;
 
@@ -58,20 +58,22 @@
     {
         var obj = new UnidadeMedida()
         {
-            Id = model.Id,
-            Nome = model.Nome,
-            Sigla = model.Sigla
+            Id = Model.Id,
+            Nome = Model.Nome,
+            Sigla = Model.Sigla
         };
 
+        var acao = Model.Id > 0 ? "alterada" : "adicionada";
         try
         {
             await UnidadeMedidaServico.InserirOuAlterar(obj, new CancellationToken(false));
-            Snackbar.Add("Unidade de Medida adicionada com sucesso!", Severity.Success,
+            Snackbar.Add($"Unidade de Medida {acao} com sucesso!", Severity.Success,
                 options =>
                 {
                     options.VisibleStateDuration = 2000;
                     options.ShowTransitionDuration = 300;
                     options.HideTransitionDuration = 1000;
+                    options.DuplicatesBehavior = SnackbarDuplicatesBehavior.Allow;
                 });
             MudDialog.Close();
         }

@@ -13,11 +13,11 @@ public class MercadoMapeamento : IEntityTypeConfiguration<Mercado>
         builder.HasKey(m => m.Id);
         
         builder.Property(m => m.Nome)
-            .HasColumnType("varchar(250)")
+            .HasColumnType($"varchar({Mercado.NomeMaxLength})")
             .IsRequired();
         
         builder.Property(m => m.Endereco)
-            .HasColumnType("varchar(1000)")
+            .HasColumnType($"varchar({Mercado.EnderecoMaxLength})")
             .IsRequired(false);
         
         builder.HasMany(m => m.NotasCompra)

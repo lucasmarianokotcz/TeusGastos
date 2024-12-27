@@ -15,7 +15,7 @@ public class AppDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer("Server=KYNUSA\\SQLEXPRESS;Database=TeusGastos;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True;");
+        optionsBuilder.UseSqlServer("Server=LUCASAMANDA\\SQLEXPRESS;Database=TeusGastos;Trusted_Connection=True;Integrated Security=True;TrustServerCertificate=True;");
         optionsBuilder.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
     }
 

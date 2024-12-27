@@ -1,0 +1,94 @@
+@using TeusGastos.Client.ViewModels
+@using TeusGastos.Shared.Entidades
+@using TeusGastos.Shared.Extensions
+@using TeusGastos.Shared.Servicos.MercadoServico
+@inject IMercadoServico MercadoServico
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@MudDialog.Title</MudText>
+    </TitleContent>
+    <DialogContent>
+        <EditForm Model="@Model" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator/>
+            <MudTextField Label="Nome*"
+                          For="@(() => Model.Nome)"
+                          OnlyValidateIfDirty="true"
+                          T="string"
+                          Value="Model.Nome"
+                          ValueChanged="(value) => Model.Nome = value.FirstCharToUpper()"
+                          Immediate="true" />
+            <MudTextField Label="Endereço"
+                          For="@(() => Model.Endereco!)"
+                          OnlyValidateIfDirty="true"
+                          T="string"
+                          Value="Model.Endereco"
+                          ValueChanged="(value) => Model.Endereco = value.FirstCharToUpper()"
+                          Immediate="true" />
+            <MudCardActions Class="mt-8 px-0">
+                <MudButton Color="Color.Transparent"
+                           DropShadow="false"
+                           Variant="Variant.Filled"
+                           StartIcon="@Icons.Material.Filled.Cancel"
+                           IconSize="Size.Small"
+                           OnClick="Cancel">Cancelar
+                </MudButton>
+                <MudButton Color="Color.Success"
+                           DropShadow="false"
+                           Variant="Variant.Filled"
+                           StartIcon="@Icons.Material.Filled.CheckCircle"
+                           IconSize="Size.Small"
+                           ButtonType="ButtonType.Submit"
+                           Class="ml-auto">Salvar
+                </MudButton>
+            </MudCardActions>
+        </EditForm>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [Parameter] public MercadoViewModel Model { get; set; } = new();
+
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = null!;
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        var obj = new Mercado()
+        {
+            Id = Model.Id,
+            Nome = Model.Nome,
+            Endereco = Model.Endereco
+        };
+
+        var acao = Model.Id > 0 ? "alterado" : "adicionado";
+        try
+        {
+            await MercadoServico.InserirOuAlterar(obj, new CancellationToken(false));
+            Snackbar.Add($"Mercado {acao} com sucesso!", Severity.Success,
+                options =>
+                {
+                    options.VisibleStateDuration = 2000;
+                    options.ShowTransitionDuration = 300;
+                    options.HideTransitionDuration = 1000;
+                    options.DuplicatesBehavior = SnackbarDuplicatesBehavior.Allow;
+                });
+            MudDialog.Close();
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add
+            (
+                @<div>
+                    <h3>Erro ao salvar Mercado</h3>
+                    <strong>Detalhes:</strong>
+                    <text>@e.Message</text>
+                </div>
+            , Severity.Error);
+        }
+        
+        StateHasChanged();
+    }
+}

@@ -1,11 +1,11 @@
-@page "/unidades-de-medida"
+@page "/mercados"
 @using TeusGastos.Client.ViewModels
 @using TeusGastos.Shared.Entidades
-@using TeusGastos.Shared.Servicos.UnidadeMedidaServico
-@inject IUnidadeMedidaServico UnidadeMedidaServico
+@using TeusGastos.Shared.Servicos.MercadoServico
+@inject IMercadoServico MercadoServico
 @inject IDialogService DialogService
 
-<CustomPageTitle Title="Unidades de Medida"></CustomPageTitle>
+<CustomPageTitle Title="Mercados"></CustomPageTitle>
 
 <MudButton Variant="Variant.Filled"
            Color="Color.Info"
@@ -26,8 +26,8 @@
           RowsPerPage="@linhasPorPagina">
     <ToolBarContent>
         <MudText Typo="Typo.h5">
-            <MudIcon Icon="@Icons.Material.Filled.Scale"></MudIcon>
-            Unidades de Medida
+            <MudIcon Icon="@Icons.Material.Filled.Store"></MudIcon>
+            Mercados
         </MudText>
         <MudSpacer/>
         <MudTextField T="string" ValueChanged="@(s => Pesquisar(s))" Placeholder="Pesquisar" Adornment="Adornment.Start"
@@ -35,21 +35,21 @@
     </ToolBarContent>
     <HeaderContent>
         <MudTh>
-            <MudTableSortLabel SortLabel="Id" T="UnidadeMedida">Id</MudTableSortLabel>
+            <MudTableSortLabel SortLabel="Id" T="Mercado">Id</MudTableSortLabel>
         </MudTh>
         <MudTh>
-            <MudTableSortLabel InitialDirection="SortDirection.Ascending" SortLabel="Nome" T="UnidadeMedida">Nome
+            <MudTableSortLabel InitialDirection="SortDirection.Ascending" SortLabel="Nome" T="Mercado">Nome
             </MudTableSortLabel>
         </MudTh>
         <MudTh>
-            <MudTableSortLabel SortLabel="Sigla" T="UnidadeMedida">Sigla</MudTableSortLabel>
+            <MudTableSortLabel SortLabel="Endereco" T="Mercado">Endereço</MudTableSortLabel>
         </MudTh>
         <MudTh>Ações</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Id">@context.Id</MudTd>
         <MudTd DataLabel="Nome">@context.Nome</MudTd>
-        <MudTd DataLabel="Sigla">@context.Sigla</MudTd>
+        <MudTd DataLabel="Endereco">@context.Endereco</MudTd>
         <MudTd>
             <MudButton Color="Color.Warning" Variant="Variant.Filled" Size="Size.Small"
                        StartIcon="@Icons.Material.Filled.Edit" IconSize="Size.Small"
@@ -80,18 +80,18 @@
     private const string RowsPerPageString = "Linhas por página";
     private const string InfoFormat = "{first_item}-{last_item} de {all_items}";
     private const string AllItemsText = "Todos";
-    private MudTable<UnidadeMedida>? table;
+    private MudTable<Mercado>? table;
     private int pagina;
     private int linhasPorPagina = 10;
     private string busca = string.Empty;
 
     // Método que será chamado pelo MudTable para carregar os dados do servidor.
-    private async Task<TableData<UnidadeMedida>> LoadServerData(TableState state, CancellationToken token)
+    private async Task<TableData<Mercado>> LoadServerData(TableState state, CancellationToken token)
     {
         _loading = true; // Ativa o loading enquanto os dados estão sendo carregados.
 
         // Aqui você pode adicionar lógica para filtragem, ordenação e paginação.
-        var resultado = await UnidadeMedidaServico.ObterComPaginacao(
+        var resultado = await MercadoServico.ObterComPaginacao(
             busca,
             state.Page, // Página atual
             state.PageSize, // Tamanho da página
@@ -105,9 +105,9 @@
         pagina = state.Page;
         linhasPorPagina = state.PageSize;
 
-        return new TableData<UnidadeMedida>
+        return new TableData<Mercado>
         {
-            Items = resultado.Itens, // Lista de unidades de medida
+            Items = resultado.Itens, // Lista de mercados
             TotalItems = resultado.Total // Contagem total de itens (para paginação)
         };
     }
@@ -136,16 +136,16 @@
         var parameters = new DialogParameters<Dialog>();
         if (id > 0)
         {
-            var model = await UnidadeMedidaServico.ObterPorId(id, CancellationToken.None);
-            parameters.Add(x => x.Model, new UnidadeMedidaViewModel()
+            var model = await MercadoServico.ObterPorId(id, CancellationToken.None);
+            parameters.Add(x => x.Model, new MercadoViewModel()
             {
                 Id = model!.Id,
                 Nome = model.Nome,
-                Sigla = model.Sigla
+                Endereco = model.Endereco
             });
         }
         
-        var dialog = await DialogService.ShowAsync<Dialog>(id > 0 ? "Editar Unidade de Medida" : "Adicionar Unidade de Medida",
+        var dialog = await DialogService.ShowAsync<Dialog>(id > 0 ? "Editar Mercado" : "Adicionar Mercado",
             parameters,
             options);
         var result = await dialog.Result;

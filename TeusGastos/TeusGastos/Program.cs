@@ -2,6 +2,7 @@ using MudBlazor.Services;
 using Scalar.AspNetCore;
 using TeusGastos.Components;
 using TeusGastos.Shared.Contexto;
+using TeusGastos.Shared.Servicos.MercadoServico;
 using TeusGastos.Shared.Servicos.UnidadeMedidaServico;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,7 @@ builder.Services.AddDbContext<AppDbContext>();
 builder.Services.AddMudServices();
 builder.Services.AddControllers();
 builder.Services.AddScoped<IUnidadeMedidaServico, UnidadeMedidaServicoRepositorio>();
+builder.Services.AddScoped<IMercadoServico, MercadoServicoRepositorio>();
 
 builder.Services.AddOpenApi();
 

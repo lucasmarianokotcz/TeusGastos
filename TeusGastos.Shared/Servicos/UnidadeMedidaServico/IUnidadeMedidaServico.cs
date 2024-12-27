@@ -1,4 +1,5 @@
 using TeusGastos.Shared.Entidades;
+using TeusGastos.Shared.Entidades.Common;
 
 namespace TeusGastos.Shared.Servicos.UnidadeMedidaServico;
 

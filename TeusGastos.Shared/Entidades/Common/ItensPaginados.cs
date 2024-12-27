@@ -1,4 +1,4 @@
-namespace TeusGastos.Shared.Entidades;
+namespace TeusGastos.Shared.Entidades.Common;
 
 public class ItensPaginados<T> where T : class
 {

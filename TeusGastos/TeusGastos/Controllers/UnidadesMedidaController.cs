@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TeusGastos.Shared.Entidades;
+using TeusGastos.Shared.Entidades.Common;
 using TeusGastos.Shared.Servicos.UnidadeMedidaServico;
 
 namespace TeusGastos.Controllers;

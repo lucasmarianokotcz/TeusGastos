@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using TeusGastos.Shared.Contexto;
 using TeusGastos.Shared.Entidades;
+using TeusGastos.Shared.Entidades.Common;
 
 namespace TeusGastos.Shared.Servicos.UnidadeMedidaServico;
 

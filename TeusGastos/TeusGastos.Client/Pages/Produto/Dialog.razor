@@ -81,7 +81,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        UnidadesDeMedidaDisponiveis = await UnidadeMedidaServico.ObterTodos(CancellationToken.None);
+        UnidadesDeMedidaDisponiveis = await ObterUnidadesDeMedida();
+    }
+
+    private async Task<IEnumerable<UnidadeMedida>> ObterUnidadesDeMedida()
+    {
+        var lst = await UnidadeMedidaServico.ObterTodos(CancellationToken.None);
+        return lst.OrderBy(x => x.Nome);
     }
 
     private void Cancel() => MudDialog.Cancel();
@@ -143,7 +149,7 @@
         var result = await dialog.Result;
         if (!result?.Canceled ?? true)
         {
-            UnidadesDeMedidaDisponiveis = await UnidadeMedidaServico.ObterTodos(CancellationToken.None);
+            UnidadesDeMedidaDisponiveis = await ObterUnidadesDeMedida();
         }
     }
 

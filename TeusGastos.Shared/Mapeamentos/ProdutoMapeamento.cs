@@ -13,11 +13,11 @@ public class ProdutoMapeamento : IEntityTypeConfiguration<Produto>
         builder.HasKey(p => p.Id);
         
         builder.Property(p => p.CodigoEAN)
-            .HasColumnType("char(13)")
+            .HasColumnType($"char({Produto.CodigoEANLength})")
             .IsRequired();
         
         builder.Property(p => p.Descricao)
-            .HasColumnType("varchar(255)")
+            .HasColumnType($"varchar({Produto.DescricaoMaxLength})")
             .IsRequired();
         
         builder.HasMany(p => p.ItensNotaCompra)

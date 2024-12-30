@@ -1,0 +1,150 @@
+@using TeusGastos.Client.ViewModels
+@using TeusGastos.Shared.Entidades
+@using TeusGastos.Shared.Extensions
+@using TeusGastos.Shared.Servicos.ProdutoServico
+@using TeusGastos.Shared.Servicos.UnidadeMedidaServico
+@inject IProdutoServico ProdutoServico
+@inject ISnackbar Snackbar
+@inject IUnidadeMedidaServico UnidadeMedidaServico
+@inject IDialogService DialogService
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@MudDialog.Title</MudText>
+    </TitleContent>
+    <DialogContent>
+        <EditForm Model="@Model" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator/>
+            <MudTextField Label="Descrição*"
+                          For="@(() => Model.Descricao)"
+                          OnlyValidateIfDirty="true"
+                          T="string"
+                          Value="Model.Descricao"
+                          ValueChanged="(value) => Model.Descricao = value.FirstCharToUpper()"
+                          Immediate="true"/>
+            <MudTextField Label="Código EAN*"
+                          MaxLength="Produto.CodigoEANLength"
+                          For="@(() => Model.CodigoEAN)"
+                          OnlyValidateIfDirty="true"
+                          T="string"
+                          Value="Model.CodigoEAN"
+                          ValueChanged="(value) => Model.CodigoEAN = value.NumberOnly()"
+                          Immediate="true"/>
+            <MudSelect Label="Unidade de Medida*"
+                       AdornmentIcon="@Icons.Material.Filled.Scale"
+                       AdornmentColor="Color.Info"
+                       For="@(() => Model.UnidadeMedida!)"
+                       OnlyValidateIfDirty="true"
+                       T="string"
+                       Value="UnidadesDeMedidaDisponiveis?.FirstOrDefault(x => x.Id == Convert.ToInt32(Model.UnidadeMedida))?.Nome"
+                       ValueChanged="(value) => Model.UnidadeMedida = value"
+                       Immediate="true">
+                @if (UnidadesDeMedidaDisponiveis != null)
+                {
+                    @foreach (var option in UnidadesDeMedidaDisponiveis)
+                    {
+                        <MudSelectItem Value="option.Id.ToString()">@option.Nome</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+            <MudLink Color="Color.Info"
+                     Class="mt-1"
+                     @onclick="OpenDialogAsync">Nova Unidade de Medida
+            </MudLink>
+            <MudCardActions Class="mt-8 px-0">
+                <MudButton Color="Color.Transparent"
+                           DropShadow="false"
+                           Variant="Variant.Filled"
+                           StartIcon="@Icons.Material.Filled.Cancel"
+                           IconSize="Size.Small"
+                           OnClick="Cancel">Cancelar
+                </MudButton>
+                <MudButton Color="Color.Success"
+                           DropShadow="false"
+                           Variant="Variant.Filled"
+                           StartIcon="@Icons.Material.Filled.CheckCircle"
+                           IconSize="Size.Small"
+                           ButtonType="ButtonType.Submit"
+                           Class="ml-auto">Salvar
+                </MudButton>
+            </MudCardActions>
+        </EditForm>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [Parameter] public ProdutoViewModel Model { get; set; } = new();
+
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = null!;
+
+    private IEnumerable<UnidadeMedida>? UnidadesDeMedidaDisponiveis { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        UnidadesDeMedidaDisponiveis = await UnidadeMedidaServico.ObterTodos(CancellationToken.None);
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        var obj = new Produto
+        {
+            Id = Model.Id,
+            Descricao = Model.Descricao,
+            CodigoEAN = Model.CodigoEAN,
+            UnidadeId = Convert.ToInt32(Model.UnidadeMedida)
+        };
+
+        var acao = Model.Id > 0 ? "alterado" : "adicionado";
+        try
+        {
+            await ProdutoServico.InserirOuAlterar(obj, new CancellationToken(false));
+            Snackbar.Add($"Produto {acao} com sucesso!", Severity.Success,
+                options =>
+                {
+                    options.VisibleStateDuration = 2000;
+                    options.ShowTransitionDuration = 300;
+                    options.HideTransitionDuration = 1000;
+                    options.DuplicatesBehavior = SnackbarDuplicatesBehavior.Allow;
+                });
+            MudDialog.Close();
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add
+            (
+                @<div>
+                    <h3>Erro ao salvar Produto</h3>
+                    <strong>Detalhes:</strong>
+                    <text>@e.Message</text>
+                </div>
+                , Severity.Error);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task OpenDialogAsync()
+    {
+        var options = new DialogOptions
+        {
+            FullWidth = true,
+            MaxWidth = MaxWidth.ExtraSmall,
+            CloseOnEscapeKey = false,
+            BackdropClick = false
+        };
+
+        var parameters = new DialogParameters<UnidadesMedida.Dialog>();
+
+        var dialog = await DialogService.ShowAsync<UnidadesMedida.Dialog>("Adicionar Unidade de Medida",
+            parameters,
+            options);
+        var result = await dialog.Result;
+        if (!result?.Canceled ?? true)
+        {
+            UnidadesDeMedidaDisponiveis = await UnidadeMedidaServico.ObterTodos(CancellationToken.None);
+        }
+    }
+
+}

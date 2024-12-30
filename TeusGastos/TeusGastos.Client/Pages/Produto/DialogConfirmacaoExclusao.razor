@@ -1,5 +1,5 @@
-@using TeusGastos.Shared.Servicos.UnidadeMedidaServico
-@inject IUnidadeMedidaServico UnidadeMedidaServico
+@using TeusGastos.Shared.Servicos.ProdutoServico
+@inject IProdutoServico ProdutoServico
 @inject ISnackbar Snackbar
 
 <MudDialog Class="pb-2">
@@ -9,8 +9,6 @@
     <DialogContent>
         <p class="mb-4">
             Tem certeza que deseja excluir esse registro?
-            <br/>
-            <strong>Todos os Produtos associados também serão excluídos.</strong>
         </p>
     </DialogContent>
     <DialogActions>
@@ -43,8 +41,8 @@
     {
         try
         {
-            await UnidadeMedidaServico.Excluir(Id, new CancellationToken(false));
-            Snackbar.Add($"Unidade de Medida excluída com sucesso!", Severity.Success,
+            await ProdutoServico.Excluir(Id, new CancellationToken(false));
+            Snackbar.Add($"Produto excluído com sucesso!", Severity.Success,
                 options =>
                 {
                     options.VisibleStateDuration = 2000;
@@ -59,7 +57,7 @@
             Snackbar.Add
             (
                 @<div>
-                    <h3>Erro ao excluir Unidade de Medida</h3>
+                    <h3>Erro ao excluir Produto</h3>
                     <strong>Detalhes:</strong>
                     <text>@e.Message</text>
                 </div>
